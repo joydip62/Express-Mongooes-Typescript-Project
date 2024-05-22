@@ -1,13 +1,26 @@
 import { Request, Response } from "express";
 import { StudentService } from "./student.service";
+import studentValidationSchema from "./student.vatidation";
 
 const createStudent = async (req: Request, res: Response) => {
   try {
-    // request
-    const student = req.body.students;
 
+    // request
+    const {students: studentData} = req.body;
+
+    // data validation using Joi
+    const { error, value } = studentValidationSchema.validate(studentData); 
+
+    if (error) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong",
+        error: error.details,
+      });
+    }
+    
     // will class service
-    const result = await StudentService.createStudentIntoDB(student);
+    const result = await StudentService.createStudentIntoDB(value);
 
     // response
     res.status(200).json({
@@ -16,7 +29,11 @@ const createStudent = async (req: Request, res: Response) => {
       date: result,
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error,
+    });
   }
 };
 
@@ -29,7 +46,11 @@ const getStudent = async (req: Request, res: Response) => {
             date: result,
         });
     } catch (error) {
-        console.log(error);
+        res.status(500).json({
+          success: false,
+          message: "Something went wrong",
+          error: error,
+        });
     }
 }
 
@@ -44,7 +65,11 @@ const getStudentById = async (req: Request, res: Response) => {
           date: result,
         });
     } catch (error) {
-        console.log(error);
+        res.status(500).json({
+          success: false,
+          message: "Something went wrong",
+          error: error
+        });
     }
 }
 
